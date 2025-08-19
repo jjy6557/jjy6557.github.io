@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>분야별 기술동향 및 AI 소식</title>
+    <style>
+        /* 기본 스타일 초기화 및 설정 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.3;
+            padding-top: 140px; /* 고정 헤더 높이에 맞춰 body 상단 패딩 조정 */
+        }
+
+        /* 헤더 스타일 */
+        header {
+            background-color: #004a9e; /* 전문적인 느낌의 파란색 */
+            color: #ffffff;
+            padding: 0.1rem 0.1rem; /* 상하 패딩을 2rem에서 0.5rem으로 줄여 헤더 높이 감소 */
+            text-align: center;
+            border-bottom: 5px solid #ff7f00; /* 포인트 오렌지색 */
+            
+            /* 고정 헤더를 위한 스타일 */
+            position: fixed; /* 화면에 고정 */
+            top: 0; /* 상단에 붙임 */
+            left: 0; /* 왼쪽에 붙임 */
+            width: 100%; /* 전체 너비 차지 */
+            z-index: 1000; /* 다른 콘텐츠 위에 표시되도록 설정 */
+        }
+
+        header h1 {
+            font-size: 2.9rem; /* 글자 크기 유지 */
+            font-weight: 549;
+            margin-bottom: 0.5rem; /* 제목과 서브 텍스트 사이 간격 유지 */
+        }
+        
+        header p { /* 서브 타이틀 스타일 */
+            font-size: 1.8rem; /* 글자 크기 유지 */
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 0;
+        }
+
+
+        /* 메인 컨테이너 (섹션들을 담는 공간) */
+        .container {
+            display: flex;
+            flex-direction: column; /* 섹션을 세로로 정렬 */
+            gap: 30px; /* 섹션 사이 간격 */
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 개별 기술 분야 섹션 스타일 */
+        .tech-section {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tech-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eef2f5;
+        }
+
+        .section-header h2 {
+            color: #004a9e;
+            font-size: 2.0rem;
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        /* 링크와 이미지를 감싸는 래퍼 */
+        .content-wrapper {
+            display: flex;
+            gap: 25px;
+            align-items: center; /* 수직 중앙 정렬 */
+        }
+
+        /* 링크 목록 컨테이너 */
+        .links-container {
+            flex: 1; /* 남은 공간을 모두 차지 */
+        }
+
+        .links-container ul {
+            list-style: none;
+        }
+
+        .links-container ul li {
+            margin-bottom: 10px;
+        }
+        
+        .links-container ul li:last-child {
+            margin-bottom: 0;
+        }
+
+        .links-container ul li > a { /* li 바로 밑의 a 태그에만 박스 스타일 적용 */
+            text-decoration: none;
+            color: #0066cc;
+            font-weight: 500;
+            transition: color 0.2s, background-color 0.2s;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+
+        .links-container ul li > a:hover {
+            color: #ffffff;
+            background-color: #ff7f00;
+            border-color: #ff7f00;
+        }
+
+        /* 섹션 이미지 스타일 */
+        .section-image {
+            flex-shrink: 0; /* 이미지가 찌그러지지 않도록 함 */
+            width: 40%; /* 너비 40% 차지 */
+            max-width: 400px; /* 최대 너비 제한 */
+            height: auto;
+            aspect-ratio: 4 / 3; /* 이미지 비율 유지 */
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* --- 정책동향 그룹 스타일 (수정된 부분) --- */
+        .policy-link-box {
+            padding: 8px 12px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        
+        .policy-link-box .policy-title {
+            font-weight: 500;
+            color: #333;
+            margin-right: 8px; /* 제목과 링크 목록 사이 간격 */
+        }
+
+        .policy-link-box .policy-link-items {
+            display: inline; /* 제목 옆에 바로 붙도록 설정 */
+        }
+        
+        .policy-link-items a {
+            text-decoration: none;
+            color: #0066cc;
+            display: inline; /* 링크를 가로로 배열 */
+        }
+
+        .policy-link-items a:hover {
+            text-decoration: underline;
+            color: #ff7f00;
+        }
+
+        /* 마지막 링크를 제외하고 쉼표(,) 추가 */
+        .policy-link-items a:not(:last-child)::after {
+            content: ', ';
+            text-decoration: none;
+            color: #333; /* 쉼표 색상을 일반 텍스트 색상으로 */
+        }
+        /* --- (수정된 부분 끝) --- */
+
+
+        /* 푸터 스타일 */
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 30px;
+            background-color: #eef2f5;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        /* 반응형: 모바일 화면 대응 */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.2rem;
+            }
+            header p {
+                font-size: 1rem;
+            }
+            .container {
+                padding: 20px;
+            }
+            .content-wrapper {
+                flex-direction: column-reverse;
+            }
+            .section-image {
+                width: 100%;
+                max-width: 100%;
+            }
+            body {
+                padding-top: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>기술의  흐름을 읽다, 미래를 그리다</h1>
+        <p>특허사업본부, 분야별 기술동향 소식</p>
+    </header>
+
+    <main class="container">
+        <!-- 융복합분야 -->
+        <section class="tech-section">
+            <div class="section-header">
+                <h2>융복합분야</h2>
+                <p>다양한 기술이 융합된 최신 트렌드와 기술 동향을 확인하세요.</p>
+            </div>
+            <div class="content-wrapper">
+                <img src="https://tech42.shoplic.cloud/wp-content/uploads/2021/09/%EC%A0%84%EA%B8%B0%EC%B0%A8.jpg" alt="융복합기술 이미지" class="section-image">
+                <div class="links-container">
+                    <ul>
+                        <li><a href="https://www.kaami.or.kr/notice/news/index.jsp" target="_blank">[한국자율주행산업협회]보도자료</a></li>
+                        <li><a href="https://healthtechinsider.com/" target="_blank">[HealthTech Insider] HealthTech Insider</a></li>
+                        <li><a href="https://www.autoelectronics.co.kr/article/articleWebList1.asp?c_no1=30" target="_blank">[AEM] Daily News</a></li>
+                        <li><a href="https://kim.or.kr/contents/sub03/01.asp" target="_blank">[대한금속·재료학회] 재료마당</a></li>
+                        <li><a href="https://robotzine.co.kr/" target="_blank">[로봇기술]로봇기술</a></li>
+
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 기계분야 -->
+        <section class="tech-section">
+            <div class="section-header">
+                <h2>기계건설분야</h2>
+                <p>기계공학, 토목공학, 컴퓨터 설계 등 기계분야의 혁신을 다루는 소식을 모았습니다.</p>
+            </div>
+            <div class="content-wrapper">
+                <img src="https://www.iscu.ac.kr/main/images/contents/03_aboutschool/47_01_title01.jpg" alt="기계기술 이미지" class="section-image">
+                <div class="links-container">
+                    <ul>
+                        <li><a href="https://homenet.kocea.or.kr:1443/kocea/koc-kr/bbs/i-434/list.do" target="_blank">[한국건설기술인협회] 건설과 사람</a></li>
+                        <li><a href="https://ksme.or.kr/sub/sub2_6.asp?top_param=2&sub_param=6" target="_blank">[대한기계학회] 기계저널</a></li>
+                        <li><a href="https://www.osk.or.kr/" target="_blank">[한국광학회] 한국광학회 뉴스</a></li>
+                        <li><a href="https://www.cadgraphics.co.kr/index.php" target="_blank">[CAD & Graphics] 캐드앤그래픽스</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 화학생명분야 -->
+        <section class="tech-section">
+            <div class="section-header">
+                <h2>화학생명분야</h2>
+                <p>배터리, 신소재, 바이오 등 화학·생명 산업의 핵심 기술과 시장 동향을 제공합니다.</p>
+            </div>
+            <div class="content-wrapper">
+                <img src="https://d2ojy7p9gklax5.cloudfront.net/prod/SITE/5/thumbnailImage/1727673215933.png" alt="화학기술 이미지" class="section-image">
+                <div class="links-container">
+                    <ul>
+                        <li><a href="https://www.hankyung.com/bioinsight" target="_blank">[한경 BIO Insight] 한경바이오인사이트</a></li>
+                        <li><a href="https://www.bioin.or.kr/NewsLetterList.do?cPage=9&s_str=" target="_blank">[국가생명공학정책연구센터] BIoIN</a></li>
+                        <li><a href="https://kobs.or.kr/main/" target="_blank">[한국전지학회] 한국전지학회</a></li>
+                        <li><a href="https://inside.lgensol.com/category/news/" target="_blank">[LG에너지솔루션] Inside News</a></li>
+                        <li><a href="https://skinnonews.com/archives/category/industry-and-insight/basics" target="_blank">[SK이노베이션] 스키노뉴스</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 전기통신분야 -->
+        <section class="tech-section">
+            <div class="section-header">
+                <h2>전기통신분야</h2>
+                <p>전자, 전기, 정보통신 등 미래를 선도하는 전기·통신 기술 소식을 전합니다.</p>
+            </div>
+            <div class="content-wrapper">
+                <img src="https://www.etri.re.kr/webzine/20210709/common/images/sub03_02.jpg" alt="전기기술 이미지" class="section-image">
+                <div class="links-container">
+                    <ul>
+                        <li><a href="https://www.etri.re.kr/webzine/202507/index.html" target="_blank">[한국전자통신연구원] ETRI 웹진</a></li>
+                        <li><a href="https://www.kics.or.kr/html/?pmode=BWebzinePublishingList" target="_blank">[한국통신학회] KICS 웹진</a></li>
+                        <li><a href="https://www.tta.or.kr/tta/publicationHosuList.do?key=80&rep=1&searchKindNum=1" target="_blank">[한국정보통신기술협회] TTA 저널</a></li>
+                        <li><a href="https://www.technologyreview.kr/special/magazine/" target="_blank">[MIT Technology Review] MIT 테크놀로지 리뷰 매거진</a></li>
+                        <li><a href="https://www.hellot.net/" target="_blank">[Hello T] 월간 전자기술</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 반도체영상분야 -->
+        <section class="tech-section">
+            <div class="section-header">
+                <h2>반도체영상분야</h2>
+                <p>차세대 메모리, 시스템 반도체 등 반도체·영상 산업의 최신 동향을 살펴보세요.</p>
+            </div>
+            <div class="content-wrapper">
+                <img src="https://cdn.greenpostkorea.co.kr/news/photo/202302/205899_207066_2450.jpg" alt="반도체기술 이미지" class="section-image">
+                <div class="links-container">
+                    <ul>
+                        <li><a href="https://ksdt.kr/sub02/sub11.php" target="_blank">[한국반도체디스플레이기술학회] 학회지 논문 검색</a></li>
+                        <li><a href="https://www.thelec.kr/news/articleList.html?sc_section_code=S1N2" target="_blank">[디일렉] 반도체 뉴스</a></li>
+                        <li><a href="https://www.theise.org/%eb%b0%98%eb%8f%84%ec%b2%b4%ea%b8%b0%ec%88%a0%eb%a1%9c%eb%93%9c%eb%a7%b5/" target="_blank">[반도체공학회] 반도체기술로드맵</a></li>
+                        <li><a href="https://www.ksia.or.kr/semiconductor_info.php?data_tab=2" target="_blank">[한국반도체산업협회] 반도체 산업 동향</a></li>
+                        <li><a href="https://www.stepi.re.kr/site/stepiko/ex/bbs/reportCateList.do?cateTypeCd=A05" target="_blank">[과학기술정책연구원] 정기간행물</a></li>
+                        <li><a href="https://iitp.kr/kr/1/communication/RNDperformance.it" target="_blank">[정보통신기획평가원] R&D 성과</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI 정보 허브 -->
+        <section class="tech-section">
+            <div class="section-header">
+                <h2>AI정보허브 (신설)</h2>
+                <p> AI 관련 정책·기술·산업·특허 동향, 교육, 기사 등 다양한 정보을 제공합니다.</p>
+            </div>
+            <div class="content-wrapper">
+                <img src="https://f1.tokenpost.kr/2025/03/sogeih3dn4.jpg" alt="ai 정보 허브 이미지" class="section-image">
+                <div class="links-container">
+                    <ul>
+                        <!-- [NIA] -->
+                        <li>
+                            <div class="policy-link-box">
+                                <span class="policy-title">[NIA 한국지능정보사회진흥원]</span>
+                                <div class="policy-link-items">
+                                    <a href="https://www.nia.or.kr/site/nia_kor/ex/bbs/List.do?cbIdx=44086" target="_blank">간행물</a>
+                                    <a href="https://www.nia.or.kr/site/nia_kor/ex/bbs/List.do?cbIdx=66361" target="_blank">연구보고서</a>
+                                    <a href="https://www.nia.or.kr/site/nia_kor/ex/bbs/List.do?cbIdx=99953" target="_blank">활용사례</a> 
+                                </div>
+                            </div>
+                        </li>
+                        <!-- [AI TIMES] -->
+                        <li>
+                            <div class="policy-link-box">
+                                <span class="policy-title">[AI TIMES]</span>
+                                <div class="policy-link-items">
+                                    <a href="https://www.aitimes.com/news/articleList.html?sc_section_code=S1N1&view_type=sm" target="_blank">정책동향</a>
+                                    <a href="https://www.aitimes.com/news/articleList.html?sc_multi_code=S2&view_type=sm" target="_blank">산업·기술동향</a>
+                                    <a href="https://www.aitimes.com/news/articleList.html?sc_sub_section_code=S2N110&view_type=sm" target="_blank">뉴스 브리핑</a>
+                                    <a href="https://www.aitimes.com/news/articleList.html?sc_section_code=S1N13&view_type=sm" target="_blank">해외동향</a>
+                                    <a href="https://www.aitimes.com/news/articleList.html?sc_section_code=S1N26&view_type=sm" target="_blank">교육</a>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- [인공지능신문] 수정된 부분 -->
+                        <li>
+                            <div class="policy-link-box">
+                                <span class="policy-title">[인공지능신문]</span>
+                                <div class="policy-link-items">
+                                    <a href="https://www.aitimes.kr/news/articleList.html?sc_section_code=S1N2&view_type=sm" target="_blank">기술동향</a>
+                                    <a href="https://www.aitimes.kr/news/articleList.html?sc_section_code=S1N4&view_type=sm" target="_blank">산업동향</a>
+                                    <a href="https://www.aitimes.kr/news/articleList.html?sc_section_code=S1N3&view_type=sm" target="_blank">이슈분석</a>
+                                    <a href="https://www.aitimes.kr/news/articleList.html?sc_section_code=S1N5&view_type=sm" target="_blank">주요뉴스</a>                                                          <a href="https://www.aitimes.kr/news/articleList.html?sc_section_code=S1N6&view_type=sm" target="_blank">전문가 견해</a>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- [TheMiilk] 수정된 부분 -->
+                        <li>
+                            <div class="policy-link-box">
+                                <span class="policy-title">[TheMiilk]</span>
+                                <div class="policy-link-items">
+                                    <a href="https://www.themiilk.com/topics/ai?ref=blog-ko.superb-ai.com" target="_blank">실리콘밸리 최신뉴스</a>
+                                 </div>
+                            </div>
+                        </li>
+                        <!-- [AINEWS] 수정된 부분 -->
+                        <li>
+                            <div class="policy-link-box">
+                                <span class="policy-title">[AINEWS]</span>
+                                <div class="policy-link-items">
+                                    <a href="https://www.artificialintelligence-news.com/" target="_blank">해외뉴스</a>
+                                   <a href="https://www.artificialintelligence-news.com/events/" target="_blank">해외 박람회·컨퍼런스</a>
+                                 </div>
+                            </div>
+                        </li>
+                        <!-- [논문정보] 수정된 부분 -->
+                        <li>
+                            <div class="policy-link-box">
+                                <span class="policy-title">[특허·논문]</span>
+                                <div class="policy-link-items">
+                                    <a href="https://www.wipo.int/web-publications/patent-landscape-report-generative-artificial-intelligence-genai/assets/62504/Generative%20AI%20-%20PLR%20EN_WEB2.pdf" target="_blank">특허동향</a>
+                                    <a href="https://arxiv.org/list/cs.AI/new" target="_blank">arXiv</a>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- [뉴스 플랫폼] -->
+                        <li>
+                            <div class="policy-link-box">
+                                <span class="policy-title">[뉴스 플랫폼]</span>
+                                <div class="policy-link-items">
+                                    <a href="https://news.google.com/search?q=ai&hl=ko&gl=KR&ceid=KR%3Ako" target="_blank">Google</a>
+                                    <a href="https://search.naver.com/search.naver?where=news&ie=utf8&sm=nws_hty&query=%EC%9D%B8%EA%B3%B5%EC%A7%80%EB%8A%A5" target="_blank">Naver</a>
+                                </div>
+                            </div>
+                        </li>
+                        <!-- [오픈프롬프트] -->
+                        <li>
+                            <div class="policy-link-box">
+                                <span class="policy-title">[오픈프롬프트]</span>
+                                <div class="policy-link-items">
+                                    <a href="https://www.prpt.ai/?ref=blog-ko.superb-ai.com" target="_blank">프롬프트 라이브러리</a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 특허사업총괄실. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>
