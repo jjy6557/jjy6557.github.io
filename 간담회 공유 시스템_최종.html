@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>특허사업본부 간담회 공유 시스템 v3.2 (UI/UX 개선)</title>
+    <style>
+        /* 기본 스타일 */
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #005a9c;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        h1 { text-align: center; }
+
+        /* 메인화면 - 간담회 목록 */
+        .department-section { margin-bottom: 30px; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            table-layout: fixed; /* 테이블 레이아웃을 고정하여 너비가 변하지 않도록 함 */
+            word-break: break-all; /* 내용이 길 경우 강제 줄바꿈 */
+        }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: middle; }
+        th { background-color: #e9f2fa; font-weight: bold; }
+        
+        th:nth-child(1), td:nth-child(1) { width: 10%; } /* 날짜 */
+        th:nth-child(2), td:nth-child(2) { width: 15%; } /* 심사과 */
+        th:nth-child(3), td:nth-child(3) { width: 33%; } /* 주요논의사항 */
+        th:nth-child(4), td:nth-child(4) { width: 20%; } /* 특이사항 */
+        th:nth-child(5), td:nth-child(5) { width: 12%; text-align: center; } /* 첨부파일 */
+        th:nth-child(6), td:nth-child(6) { width: 10%; } /* 관리 */
+
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        td a { color: #007bff; text-decoration: none; font-weight: bold; }
+        td a:hover { text-decoration: underline; }
+        .discussion-points, .special-notes { white-space: pre-wrap; font-size: 0.9em; }
+
+        /* 수정 기능 관련 스타일 */
+        td[contenteditable="true"] {
+            background-color: #fffde7;
+            cursor: text;
+        }
+        td[contenteditable="true"]:focus {
+            outline: 2px solid #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        /* 버튼 및 관리 셀 스타일 */
+        .action-cell {
+            text-align: center;
+        }
+        .delete-btn, #save-all-btn {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            margin: 0 4px;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        #save-all-btn { background-color: #28a745; }
+        #save-all-btn:hover { background-color: #218838; }
+        .delete-btn { background-color: #dc3545; }
+        .delete-btn:hover { background-color: #c82333; }
+        
+        /* === CSS 수정: 전체 저장 버튼을 항상 보이도록 display 속성 제거 === */
+        #global-actions {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        #save-all-btn {
+            padding: 10px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        /* 업로드 화면 스타일 */
+        #upload-section { margin-top: 40px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #fafafa; }
+        .form-grid { display: grid; grid-template-columns: 1fr 3fr; gap: 15px; align-items: center; }
+        .form-grid label { font-weight: bold; text-align: right; }
+        .form-grid input, .form-grid select, .form-grid textarea, .form-grid button { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-grid textarea { height: 100px; resize: vertical; }
+        .form-row { display: contents; }
+        
+        .api-key-wrapper {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 8px;
+        }
+        .api-key-wrapper button { padding: 10px; font-size: 0.9em; background-color: #6c757d; color: white; border: none; cursor: pointer; }
+        .api-key-wrapper button:hover { background-color: #5a6268; }
+
+        .full-width { grid-column: 1 / -1; }
+        .single-line-grid { display: grid; grid-template-columns: auto 1fr auto 1fr auto 1fr auto 1fr; gap: 15px; align-items: center; }
+        .single-line-grid label { font-weight: bold; text-align: right; }
+        #file-display-area { background-color: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 10px; min-height: 40px; box-sizing: border-box; display: flex; align-items: center; width: 100%; }
+        #file-display-area .placeholder { color: #888; }
+        #file-display-area a { color: #007bff; text-decoration: none; }
+        #file-display-area a:hover { text-decoration: underline; }
+        #ai-summary-btn, #upload-btn { background-color: #007bff; color: white; border: none; cursor: pointer; font-size: 1em; transition: background-color 0.3s; }
+        #ai-summary-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
+        #upload-btn { background-color: #28a745; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>특허사업본부 간담회 공유 시스템</h1>
+        </header>
+
+        <main id="main-screen">
+            <div id="fusion-research" class="department-section"><h2>융복합조사실</h2><table><thead><tr><th>날짜</th><th>심사과</th><th>주요논의사항</th><th>특이사항</th><th>첨부파일</th><th>관리</th></tr></thead><tbody id="fusion-research-body"></tbody></table></div>
+            <div id="mechanical-construction" class="department-section"><h2>기계건설조사실</h2><table><thead><tr><th>날짜</th><th>심사과</th><th>주요논의사항</th><th>특이사항</th><th>첨부파일</th><th>관리</th></tr></thead><tbody id="mechanical-construction-body"></tbody></table></div>
+            <div id="chemical-life" class="department-section"><h2>화학생명조사실</h2><table><thead><tr><th>날짜</th><th>심사과</th><th>주요논의사항</th><th>특이사항</th><th>첨부파일</th><th>관리</th></tr></thead><tbody id="chemical-life-body"></tbody></table></div>
+            <div id="electrical-telecom" class="department-section"><h2>전기통신조사실</h2><table><thead><tr><th>날짜</th><th>심사과</th><th>주요논의사항</th><th>특이사항</th><th>첨부파일</th><th>관리</th></tr></thead><tbody id="electrical-telecom-body"></tbody></table></div>
+            <div id="semiconductor-imaging" class="department-section"><h2>반도체영상조사실</h2><table><thead><tr><th>날짜</th><th>심사과</th><th>주요논의사항</th><th>특이사항</th><th>첨부파일</th><th>관리</th></tr></thead><tbody id="semiconductor-imaging-body"></tbody></table></div>
+            
+            <div id="global-actions">
+                <button id="save-all-btn">모든 변경사항 저장</button>
+            </div>
+        </main>
+
+        <hr>
+
+        <section id="upload-section">
+            <h2>간담회 자료 업로드</h2>
+            <form id="upload-form">
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label for="api-key">Gemini API Key</label>
+                        <div class="api-key-wrapper">
+                            <input type="password" id="api-key" placeholder="Google AI Studio에서 발급받은 API 키를 여기에 붙여넣으세요">
+                            <button type="button" id="toggle-api-key-visibility">보기</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="single-line-grid" style="margin-top: 15px;">
+                    <label for="department-select">조사실</label>
+                    <select id="department-select" required><option value="">-- 선택 --</option><option value="fusion-research">융복합조사실</option><option value="mechanical-construction">기계건설조사실</option><option value="chemical-life">화학생명조사실</option><option value="electrical-telecom">전기통신조사실</option><option value="semiconductor-imaging">반도체영상조사실</option></select>
+                    <label for="meeting-date">날짜</label><input type="date" id="meeting-date" required>
+                    <label for="meeting-file">첨부파일</label><input type="file" id="meeting-file" required>
+                    <label>심사과</label><div id="file-display-area"><span class="placeholder">파일 선택 시 표시</span></div>
+                </div>
+                <div class="form-grid" style="margin-top: 15px;">
+                    <label for="meeting-summary" class="full-width" style="text-align:left; margin-top: 10px;">간담회 요약 (텍스트 붙여넣기)</label>
+                    <textarea id="meeting-summary" class="full-width" placeholder="간담회 보고서의 요약 내용을 여기에 붙여넣고 아래 버튼을 클릭하여 자동 요약하세요."></textarea>
+                    <div class="full-width" style="text-align: center; margin: 10px 0;"><button type="button" id="ai-summary-btn">AI 요약</button></div>
+                    <div class="form-row"><label for="discussion-points">주요논의사항</label><textarea id="discussion-points" placeholder="AI 요약 결과가 여기에 자동으로 입력됩니다."></textarea></div>
+                    <div class="form-row"><label for="special-notes">특이사항</label><textarea id="special-notes" placeholder="AI 요약 결과가 여기에 자동으로 입력됩니다."></textarea></div>
+                    <div class="full-width" style="text-align: center; margin-top: 20px;"><button type="submit" id="upload-btn">업로드</button></div>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const mainScreen = document.getElementById('main-screen');
+        const uploadForm = document.getElementById('upload-form');
+        const fileInput = document.getElementById('meeting-file');
+        const fileDisplayArea = document.getElementById('file-display-area');
+        const aiSummaryBtn = document.getElementById('ai-summary-btn');
+        const apiKeyInput = document.getElementById('api-key');
+        const summaryInput = document.getElementById('meeting-summary');
+        const discussionInput = document.getElementById('discussion-points');
+        const specialNotesInput = document.getElementById('special-notes');
+        const saveAllBtn = document.getElementById('save-all-btn');
+        const toggleApiKeyBtn = document.getElementById('toggle-api-key-visibility');
+        
+        const DEPARTMENTS = ["fusion-research", "mechanical-construction", "chemical-life", "electrical-telecom", "semiconductor-imaging"];
+        let currentFileState = { name: null, dataURL: null };
+
+        function loadApiKey() {
+            const savedApiKey = localStorage.getItem('geminiApiKey');
+            if (savedApiKey) {
+                apiKeyInput.value = savedApiKey;
+                console.log('저장된 API 키를 불러왔습니다.');
+            }
+        }
+
+        function saveApiKey() {
+            const apiKey = apiKeyInput.value.trim();
+            if (apiKey) {
+                localStorage.setItem('geminiApiKey', apiKey);
+                console.log('API 키가 브라우저에 저장되었습니다.');
+            } else {
+                localStorage.removeItem('geminiApiKey');
+            }
+        }
+
+        toggleApiKeyBtn.addEventListener('click', () => {
+            if (apiKeyInput.type === 'password') {
+                apiKeyInput.type = 'text';
+                toggleApiKeyBtn.textContent = '숨기기';
+            } else {
+                apiKeyInput.type = 'password';
+                toggleApiKeyBtn.textContent = '보기';
+            }
+        });
+        
+        apiKeyInput.addEventListener('blur', saveApiKey);
+
+        function renderRow(tableBody, item, prepend = false) {
+            const newRow = prepend ? tableBody.insertRow(0) : tableBody.insertRow();
+            newRow.setAttribute('data-id', item.id);
+
+            newRow.innerHTML = `
+                <td>${item.date}</td>
+                <td>${item.fileName}</td>
+                <td class="discussion-points" contenteditable="true">${item.discussion}</td>
+                <td class="special-notes" contenteditable="true">${item.notes}</td>
+                <td><a href="${item.fileDataURL}" target="_blank" download="${item.originalFileName}">${item.fileName}</a></td>
+                <td class="action-cell">
+                    <button class="delete-btn">삭제</button>
+                </td>
+            `;
+        }
+        
+        function handleSaveAllClick() {
+            let changesCount = 0;
+            let deletionsCount = 0;
+
+            DEPARTMENTS.forEach(departmentId => {
+                const storedData = localStorage.getItem(departmentId);
+                if (!storedData) return;
+
+                let dataArray = JSON.parse(storedData);
+                let isDepartmentChanged = false;
+
+                const tableRows = document.querySelectorAll(`#${departmentId}-body tr`);
+                const remainingItemIds = new Set();
+
+                // 1. 수정된 항목 업데이트 및 삭제할 항목 필터링
+                tableRows.forEach(row => {
+                    if (row.dataset.deleted === 'true') {
+                        // 삭제 표시된 행은 건너뜀 (나중에 dataArray에서 제외)
+                        deletionsCount++;
+                        isDepartmentChanged = true;
+                    } else {
+                        const rowId = row.dataset.id;
+                        remainingItemIds.add(rowId);
+                        const itemIndex = dataArray.findIndex(item => item.id == rowId);
+
+                        if (itemIndex > -1) {
+                            const currentDiscussion = row.querySelector('.discussion-points').innerText;
+                            const currentNotes = row.querySelector('.special-notes').innerText;
+                            const originalItem = dataArray[itemIndex];
+
+                            if (originalItem.discussion !== currentDiscussion || originalItem.notes !== currentNotes) {
+                                originalItem.discussion = currentDiscussion;
+                                originalItem.notes = currentNotes;
+                                changesCount++;
+                                isDepartmentChanged = true;
+                            }
+                        }
+                    }
+                });
+                
+                // 2. dataArray에서 삭제된 항목들 최종 제거
+                if (isDepartmentChanged) {
+                    const updatedArray = dataArray.filter(item => remainingItemIds.has(String(item.id)));
+                    localStorage.setItem(departmentId, JSON.stringify(updatedArray));
+                    console.log(`[${departmentId}] 부서의 데이터가 업데이트되었습니다.`);
+                }
+            });
+
+            if (changesCount > 0 || deletionsCount > 0) {
+                alert(`수정 ${changesCount}건, 삭제 ${deletionsCount}건이 성공적으로 저장되었습니다.`);
+                loadDataFromStorage(); // 데이터를 다시 로드하여 화면을 최종 상태로 갱신
+            } else {
+                alert('변경사항이 없습니다.');
+            }
+        }
+
+        function handleDeleteClick(e) {
+            if (!confirm('이 간담회 자료를 정말 삭제하시겠습니까?\n삭제는 \'모든 변경사항 저장\' 버튼을 눌러야 최종 반영됩니다.')) {
+                return;
+            }
+            const row = e.target.closest('tr');
+            row.style.display = 'none'; // 눈에 보이지 않게 숨김
+            row.dataset.deleted = 'true'; // 삭제 대상으로 표시
+        }
+        
+        saveAllBtn.addEventListener('click', handleSaveAllClick);
+
+        mainScreen.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                handleDeleteClick(e);
+            }
+        });
+
+        // === JS 수정: 버튼을 표시하는 로직을 모두 제거하여 기본 상태(항상 보임) 유지 ===
+
+        function loadDataFromStorage() {
+            DEPARTMENTS.forEach(department => {
+                const tableBody = document.getElementById(`${department}-body`);
+                const storedData = localStorage.getItem(department);
+                tableBody.innerHTML = ''; 
+
+                if (storedData) {
+                    const dataArray = JSON.parse(storedData);
+                    dataArray.forEach(item => {
+                        if (!item.id) { item.id = Date.now() + Math.random(); }
+                        renderRow(tableBody, item, false);
+                    });
+                }
+            });
+        }
+
+        function saveDataToStorage(department, newData) {
+            const storedData = localStorage.getItem(department);
+            const dataArray = storedData ? JSON.parse(storedData) : [];
+            dataArray.unshift(newData);
+
+            try {
+                localStorage.setItem(department, JSON.stringify(dataArray));
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    alert('저장 공간이 부족합니다. 오래된 데이터를 삭제하거나 관리자에게 문의하세요.');
+                    dataArray.pop(); 
+                    try {
+                        localStorage.setItem(department, JSON.stringify(dataArray));
+                        alert('가장 오래된 데이터 1개를 삭제하고 다시 시도합니다.');
+                    } catch (e2) {
+                        alert('오래된 데이터를 삭제했지만 여전히 공간이 부족합니다.');
+                    }
+                } else {
+                    alert('데이터 저장 중 알 수 없는 오류가 발생했습니다.');
+                }
+            }
+        }
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentFileState = { name: file.name, dataURL: event.target.result };
+                    const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                    fileDisplayArea.innerHTML = `<a href="${currentFileState.dataURL}" target="_blank" download="${file.name}">${fileNameWithoutExt}</a>`;
+                };
+                reader.onerror = () => alert('파일을 읽는 중 오류가 발생했습니다.');
+                reader.readAsDataURL(file);
+            } else {
+                currentFileState = { name: null, dataURL: null };
+                fileDisplayArea.innerHTML = `<span class="placeholder">파일 선택 시 표시</span>`;
+            }
+        });
+
+        aiSummaryBtn.addEventListener('click', async () => {
+            const apiKey = apiKeyInput.value.trim();
+            const summaryText = summaryInput.value.trim();
+            if (!apiKey || !summaryText) {
+                alert('API 키와 요약할 내용을 모두 입력해주세요.');
+                return;
+            }
+            aiSummaryBtn.disabled = true;
+            aiSummaryBtn.textContent = 'AI 요약 중...';
+            discussionInput.value = 'AI가 요약 내용을 생성하고 있습니다...';
+            specialNotesInput.value = '잠시만 기다려 주세요...';
+            
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const prompt = `당신은 회의록을 분석하여 핵심 사항을 정리하는 유능한 비서입니다. 주어진 간담회 요약 텍스트를 '주요논의사항'과 '특이사항'으로 나누어 JSON 형식으로 응답해야 합니다.\n- 각 항목은 3~5개의 핵심 불릿포인트(•)로 요약해줘.\n- 각 불릿포인트는 줄바꿈(\\n)으로 구분해줘.\n- 특이사항이 없다면 '해당 없음'이라고 명확히 표시해줘.\n\n[텍스트 시작]\n${summaryText}\n[텍스트 끝]\n\n반드시 아래와 같은 JSON 형식으로만 응답해줘. 다른 설명은 추가하지 마.\n{\n  "주요논의사항": "• 첫 번째 논의사항 요약...\\n• 두 번째 논의사항 요약...",\n  "특이사항": "• 첫 번째 특이사항 요약...\\n• 두 번째 특이사항 요약..."\n}`;
+            
+            const requestBody = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
+            
+            try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API 오류: ${errorData.error.message}`);
+                }
+                const data = await response.json();
+                const responseText = data.candidates[0].content.parts[0].text;
+                const summaryResult = JSON.parse(responseText);
+                discussionInput.value = summaryResult.주요논의사항 || '결과를 가져오지 못했습니다.';
+                specialNotesInput.value = summaryResult.특이사항 || '결과를 가져오지 못했습니다.';
+                alert('AI 요약이 완료되었습니다.');
+            } catch (error) {
+                alert(`AI 요약 중 오류가 발생했습니다: ${error.message}`);
+                discussionInput.value = '';
+                specialNotesInput.value = '';
+            } finally {
+                aiSummaryBtn.disabled = false;
+                aiSummaryBtn.textContent = 'AI 요약';
+            }
+        });
+
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const department = document.getElementById('department-select').value;
+            const date = document.getElementById('meeting-date').value;
+            const discussion = discussionInput.value;
+            const notes = specialNotesInput.value;
+            if (!department || !date || !currentFileState.dataURL) {
+                alert('조사실, 날짜, 첨부파일은 필수 항목입니다.');
+                return;
+            }
+            const originalFileName = currentFileState.name;
+            const fileNameWithoutExt = originalFileName.substring(0, originalFileName.lastIndexOf('.')) || originalFileName;
+            const newData = {
+                id: Date.now(),
+                date: date,
+                fileName: fileNameWithoutExt,
+                discussion: discussion,
+                notes: notes,
+                fileDataURL: currentFileState.dataURL,
+                originalFileName: originalFileName
+            };
+            saveDataToStorage(department, newData);
+            const tableBody = document.getElementById(`${department}-body`);
+            renderRow(tableBody, newData, true);
+            alert('업로드가 완료되었습니다.');
+            uploadForm.reset();
+            fileDisplayArea.innerHTML = `<span class="placeholder">파일 선택 시 표시</span>`;
+            currentFileState = { name: null, dataURL: null }; 
+        });
+
+        loadApiKey();
+        loadDataFromStorage();
+    });
+    </script>
+</body>
+</html>
